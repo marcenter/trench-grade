@@ -28,38 +28,11 @@
     background:#fff;color:var(--ink);min-height:48px}
   input:focus{outline:2px solid var(--orange);outline-offset:1px;border-color:var(--orange)}
 
-  .seg{display:flex;border:1.5px solid var(--line);border-radius:4px;overflow:hidden;margin:0 0 12px}
-  .seg button{flex:1;padding:11px 4px;font:600 13.5px var(--sans);background:#fff;
+  .seg{display:flex;border:1.5px solid var(--line);border-radius:4px;overflow:hidden;margin:0 0 12px;max-width:220px}
+  .seg button{flex:1;padding:11px 6px;font:600 14px var(--sans);background:#fff;
               color:var(--ink2);border:none;min-height:46px;cursor:pointer}
   .seg button.on{background:var(--ink);color:#fff}
   .seg button:focus-visible{outline:2px solid var(--orange);outline-offset:-3px}
-
-  /* sensor panel */
-  .live{background:var(--ink);color:#fff;border-radius:4px;padding:14px;text-align:center;margin:0 0 10px}
-  .live .deg{font:800 44px var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1.1}
-  .live .sub{font:600 13px var(--sans);color:#CFCBC2;margin-top:2px}
-  .btnrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 10px}
-  .btn{min-height:52px;border-radius:4px;border:1.5px solid var(--line);background:#fff;
-       color:var(--ink);font:700 15px var(--sans);cursor:pointer}
-  .btn:focus-visible{outline:2px solid var(--orange)}
-  .btn.primary{background:var(--orange);border-color:var(--orange);color:#fff;font-size:17px}
-  .btn.wide{grid-column:1/-1;min-height:60px}
-  .btn:disabled{opacity:.45}
-  .seglist{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:14px}
-  .seglist .row{display:flex;justify-content:space-between;padding:7px 2px;border-bottom:1px solid var(--line)}
-  .seglist .row span:first-child{color:var(--ink2)}
-  .msg{font-size:13px;color:var(--danger);font-weight:600;margin:6px 0}
-
-  /* camera sight level */
-  .cam{position:relative;background:#000;border-radius:4px;overflow:hidden;height:46vh;max-height:420px;margin:0 0 10px}
-  .cam video{width:100%;height:100%;object-fit:cover;transform-origin:50% 50%}
-  .xline{position:absolute;left:0;right:0;top:50%;height:0;border-top:2px solid #FF3B30;
-         box-shadow:0 1px 3px rgba(0,0,0,.6);pointer-events:none;z-index:2}
-  .xline.lvl{border-top-color:#30D158}
-  .pitchtag{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);color:#FF9F8A;border-radius:4px;
-            padding:5px 10px;font:700 17px var(--mono);font-variant-numeric:tabular-nums;z-index:3;pointer-events:none}
-  .pitchtag.lvl{color:#30D158}
-  input[type=range]{width:100%;min-height:40px;accent-color:var(--orange)}
 
   .strow{display:grid;grid-template-columns:1fr 1fr 44px;gap:8px;margin:0 0 8px;align-items:center}
   .sthead{display:grid;grid-template-columns:1fr 1fr 44px;gap:8px;margin:0 0 4px}
@@ -72,6 +45,8 @@
   .add:focus-visible{outline:2px solid var(--orange)}
 
   .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .endcard{border:1px solid var(--line);border-radius:4px;padding:10px;margin:0 0 10px;background:var(--paper)}
+  .endcard .nm{font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin:0 0 8px}
   .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
   .chip{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:7px 10px;
         font-size:13px;color:var(--ink2)}
@@ -101,109 +76,57 @@
   td{font-family:var(--mono);font-size:15px;text-align:right;padding:9px 6px;border-bottom:1px solid var(--line)}
   td:first-child{text-align:left}
   td.dig{color:var(--orange);font-weight:700;font-size:16px}
+  td.tgt{font-weight:700}
   td.fill{color:var(--danger);font-weight:700}
   .tblwrap{overflow-x:auto}
 
   .checkcard{background:var(--orange-soft);border:1px solid var(--orange);border-radius:4px;
              padding:14px;margin-top:14px}
   .checkcard label{color:var(--ink)}
-  .bigout{font:800 34px var(--mono);font-variant-numeric:tabular-nums;color:var(--orange);
+  .bigout{font:800 32px var(--mono);font-variant-numeric:tabular-nums;color:var(--orange);
           margin-top:8px;letter-spacing:-.01em}
   .bigout small{font:600 14px var(--sans);color:var(--ink2);display:block;letter-spacing:0}
 
   .foot{font-size:12.5px;color:var(--ink2);margin-top:4px}
   .reset{margin-top:16px;width:100%;min-height:46px;background:transparent;border:1.5px solid var(--line);
          border-radius:4px;color:var(--danger);font:600 14px var(--sans);cursor:pointer}
-  @media (prefers-reduced-motion:no-preference){ .seg button,.btn,.del,.add{transition:background .12s} }
 </style>
 
 <h1>Trench Grade</h1>
-<p class="tag">Survey the run with your phone, set the fall, read the dig depth at every point — house to ditch.</p>
+<p class="tag">Everything is a laser reading, measured down from the beam. Bigger number = lower.</p>
 
 <div class="step">
-  <div class="eyebrow"><span class="n">1</span><span class="t">Survey the trench line</span></div>
+  <div class="eyebrow"><span class="n">1</span><span class="t">Ground readings along the line</span></div>
   <div class="seg" id="unitseg">
     <button data-u="ft" class="on">feet</button>
     <button data-u="m">metres</button>
   </div>
-  <div class="seg" id="modeseg" style="flex-wrap:wrap">
-    <button data-m="grade" style="min-width:33%">Dist + fall %</button>
-    <button data-m="sight" class="on" style="min-width:33%">Camera sight</button>
-    <button data-m="phone" style="min-width:33%">Board tilt</button>
-    <button data-m="rod" style="min-width:50%">Rod readings</button>
-    <button data-m="elev" style="min-width:50%">Elevations</button>
-  </div>
-
-  <!-- camera sight level -->
-  <div id="sightbox" style="display:none">
-    <p class="hint"><b>How it works:</b> plant a stake with bold markings (or clip a tape measure to it) at the <b>start</b> of the run, markings measured up from the ground. Walk the trench line holding the phone at the <b>same height every time</b> — resting it on top of a pole is best, eye height works too. At each point, hold the phone upright like taking a photo, tilt until the line turns <b style="color:#2F7D4F">green (level)</b>, and read where the line crosses the stake. Enter distance + reading below.</p>
-    <label>Phone height above ground when sighting (<span class="uu">ft</span>)</label>
-    <input type="text" inputmode="decimal" id="phoneH" placeholder="e.g. 5.0 — pole length or your eye height">
-    <div style="height:10px"></div>
-    <div class="cam" id="cambox">
-      <video id="vid" playsinline muted autoplay></video>
-      <div class="xline" id="xline"></div>
-      <div class="pitchtag" id="pitchtag">— °</div>
-    </div>
-    <label>Zoom ×<span id="zoomv">1.0</span></label>
-    <input type="range" id="zoom" min="1" max="8" step="0.1" value="1" aria-label="Camera zoom">
-    <div class="btnrow">
-      <button class="btn wide primary" id="camBtn">Enable camera + sensor</button>
-      <button class="btn wide" id="zeroUBtn">Calibrate: zero against a door frame</button>
-    </div>
-    <div class="msg" id="camMsg"></div>
-    <p class="note"><b>Before you start:</b> hold the phone flat against a door frame or window jamb (anything you trust to be plumb) and tap <i>Calibrate</i> — that zeroes the tilt sensor for sighting. Sanity check: standing right next to the stake, the green line should read exactly your phone height.</p>
-  </div>
-
-  <!-- iPhone level survey -->
-  <div id="phonebox">
-    <p class="hint">Lay the phone flat on a straight board (a 4-ft level or 2×4 is ideal), <b>top of the phone pointing toward the ditch</b>. Start at the house. Set the board down on the ground, tap <b>Capture</b>, move the board one length forward, repeat until you reach the ditch.</p>
-    <label>Segment length — board length (<span class="uu">ft</span>)</label>
-    <input type="text" inputmode="decimal" id="segLen" placeholder="e.g. 4">
-    <div style="height:10px"></div>
-    <div class="live"><div class="deg" id="liveDeg">— °</div><div class="sub" id="liveSub">sensor off</div></div>
-    <div class="btnrow">
-      <button class="btn wide primary" id="capBtn" disabled>Capture segment</button>
-      <button class="btn" id="senBtn">Enable sensor</button>
-      <button class="btn" id="zeroBtn" disabled>Zero on flat</button>
-      <button class="btn" id="undoBtn">Undo last</button>
-      <button class="btn" id="clearSegBtn">Clear survey</button>
-    </div>
-    <div class="msg" id="senMsg"></div>
-    <div class="seglist" id="seglist"></div>
-    <p class="note"><b>Calibration:</b> put the board on a surface you trust to be flat and tap <i>Zero on flat</i> once before you start. To check the zero, capture a spot, spin the board 180°, capture again — the two angles should be equal and opposite.</p>
-  </div>
-
-  <!-- manual entry -->
-  <div id="manualbox" style="display:none">
-    <p class="hint" id="modehint"></p>
-    <div class="sthead"><div>Distance (<span class="uu">ft</span>)</div><div id="readhead">Reading (<span class="uu">ft</span>)</div><div></div></div>
-    <div id="stations"></div>
-    <button class="add" id="addbtn">+ Add station</button>
-  </div>
+  <p class="hint">Set the laser up anywhere it can see the whole run. Walk the trench line with the tape: at each point, enter the distance from the start and the reading from the beam down to the <b>ground</b>. Bigger reading = lower ground. The first point (distance 0) is your station at the house.</p>
+  <div class="sthead"><div>Distance (<span class="uu">ft</span>)</div><div>Ground reading (<span class="uu">ft</span>)</div><div></div></div>
+  <div id="stations"></div>
+  <button class="add" id="addbtn">+ Add point</button>
 </div>
 
 <div class="step">
-  <div class="eyebrow"><span class="n">2</span><span class="t">Set the grade</span></div>
-  <p class="hint">Distance 0 is at the house. The end point is where the pipe meets the ditch.</p>
-  <div class="two">
-    <div>
-      <label>Start depth at house (<span class="uu">ft</span>)</label>
-      <input type="text" inputmode="decimal" id="startDepth" placeholder="e.g. 2.0">
-    </div>
-    <div>
-      <label>Depth at the ditch end (<span class="uu">ft</span>)</label>
-      <input type="text" inputmode="decimal" id="endDepth" placeholder="e.g. 0.5">
+  <div class="eyebrow"><span class="n">2</span><span class="t">The two ends of the pipe</span></div>
+  <p class="hint">Same laser, same rod — but now read down to where the <b>pipe bottom</b> must sit at each end.</p>
+  <div class="endcard">
+    <div class="nm" style="color:var(--green)">Start — bottom of foundation</div>
+    <div class="two">
+      <div><label>Distance (<span class="uu">ft</span>)</label>
+        <input type="text" inputmode="decimal" id="sD" placeholder="usually 0"></div>
+      <div><label>Reading to bottom (<span class="uu">ft</span>)</label>
+        <input type="text" inputmode="decimal" id="sR" placeholder="e.g. 6.8"></div>
     </div>
   </div>
-  <div style="height:12px"></div>
-  <div class="seg" id="gradeseg">
-    <button data-g="start" class="on">Use both depths</button>
-    <button data-g="slope">Set slope % instead</button>
-  </div>
-  <div id="slopebox" style="display:none">
-    <label>Slope — % fall toward the ditch (drain tile minimum ≈ 1%, i.e. ⅛″ per ft)</label>
-    <input type="text" inputmode="decimal" id="slopePct" placeholder="e.g. 1.0">
+  <div class="endcard">
+    <div class="nm" style="color:var(--orange)">End — outlet at the ditch</div>
+    <div class="two">
+      <div><label>Distance (<span class="uu">ft</span>)</label>
+        <input type="text" inputmode="decimal" id="oD" placeholder="e.g. 60"></div>
+      <div><label>Reading to outlet (<span class="uu">ft</span>)</label>
+        <input type="text" inputmode="decimal" id="oR" placeholder="e.g. 7.5"></div>
+    </div>
   </div>
   <div class="chips" id="gradechips"></div>
 </div>
@@ -212,156 +135,63 @@
   <div class="eyebrow"><span class="n">3</span><span class="t">Dig plan</span></div>
   <div id="warnbox"></div>
   <div class="legend">
-    <span><span class="sw" style="background:#2F7D4F"></span>Ground surface</span>
-    <span><span class="sw" style="background:#D9480F"></span>Pipe / trench bottom</span>
+    <span><span class="sw" style="background:#2F7D4F"></span>Ground</span>
+    <span><span class="sw" style="background:#D9480F"></span>Pipe bottom</span>
   </div>
   <div id="chartwrap">
-    <svg id="chart" width="100%" height="250" role="img" aria-label="Trench profile: ground surface and target trench bottom"></svg>
+    <svg id="chart" width="100%" height="250" role="img" aria-label="Trench profile: ground surface and target pipe bottom"></svg>
     <div id="tip"></div>
   </div>
   <p class="note" id="venote"></p>
   <div class="tblwrap">
     <table>
-      <thead><tr><th>Dist</th><th>Surface</th><th>Bottom</th><th>Dig ↓</th></tr></thead>
+      <thead><tr><th>Dist</th><th>Ground read</th><th>Bottom read</th><th>Dig ↓</th></tr></thead>
       <tbody id="tbody"></tbody>
     </table>
   </div>
+  <p class="note"><b>Bottom read</b> is the laser reading when the rod sits on the finished trench bottom — dig until the rod reads that number. <b>Dig ↓</b> is the same thing as depth below the ground at that point.</p>
   <div class="checkcard">
-    <label>Check any point — distance from the house (<span class="uu">ft</span>)</label>
+    <label>Check any point — distance from the start (<span class="uu">ft</span>)</label>
     <input type="text" inputmode="decimal" id="checkDist" placeholder="e.g. 35">
-    <div class="bigout" id="checkOut">—<small>dig depth at that point</small></div>
+    <div class="bigout" id="checkOut">—<small>dig depth · target bottom reading</small></div>
   </div>
   <p class="note" id="safenote"></p>
 </div>
 
-<p class="foot"><b>No iPhone handy for the survey?</b> Switch to <i>Rod readings</i> and use a laser level: at each flag record distance from the house and the rod reading — a bigger reading means lower ground; the app handles the rest. All elevations are relative, no benchmark needed.</p>
+<p class="foot">Don't move the laser between Step 1 and Step 2 — every number depends on the same beam height. If you have to re-set the laser, redo all readings.</p>
 <button class="reset" id="resetbtn">Clear all data</button>
 
 <script>
 (function(){
 "use strict";
 const $=id=>document.getElementById(id);
-const KEY="trenchgrade_v2";
-let S={unit:"ft",mode:"sight",grade:"start",endDepth:"",slopePct:"",startDepth:"",checkDist:"",
-       segLen:"4",zero:0,zeroU:0,phoneH:"",segs:[],stations:[{d:"0",r:""},{d:"",r:""},{d:"",r:""}]};
+const KEY="trenchgrade_v3";
+let S={unit:"ft",sD:"0",sR:"",oD:"",oR:"",checkDist:"",
+       stations:[{d:"0",r:""},{d:"",r:""},{d:"",r:""},{d:"",r:""}]};
 try{const raw=localStorage.getItem(KEY); if(raw){const p=JSON.parse(raw); if(p&&p.stations) S=Object.assign(S,p);}}catch(e){}
 
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 function num(v){const n=parseFloat(String(v).replace(",",".").trim());return isNaN(n)?null:n;}
 function fmt(v,dp){dp=dp==null?2:dp;return (Math.round(v*Math.pow(10,dp))/Math.pow(10,dp)).toFixed(dp);}
-function inches(ftVal){ // pretty "1 ft 3¼ in" helper for ft mode
+function inches(ftVal){ // "1′ 3.2″" pretty-printer for ft mode
   const sign=ftVal<0?"-":""; let v=Math.abs(ftVal);
   const ft=Math.floor(v); const inch=(v-ft)*12;
   return sign+(ft>0?ft+"′ ":"")+fmt(inch,1)+"″";
 }
 
-/* ================= sensor (iPhone level) ================= */
-let buf=[], sensorOn=false;
-function median(){if(!buf.length)return null;const s=buf.slice().sort((a,b)=>a-b);return s[Math.floor(s.length/2)];}
-function onOri(e){
-  if(e.beta==null)return;
-  buf.push(e.beta); if(buf.length>40)buf.shift();
-  const m=median();
-  if(m==null)return;
-  // board mode readout (phone flat)
-  const a=m-S.zero;
-  $("liveDeg").textContent=fmt(a,1)+" °";
-  $("liveSub").textContent="grade "+fmt(Math.tan(a*Math.PI/180)*100,1)+" %  ·  "+
-    (a>=0?"uphill ahead":"downhill ahead");
-  // sight mode readout (phone upright, camera forward): level when beta = 90
-  const pitch=m-90-(S.zeroU||0);
-  const lvl=Math.abs(pitch)<=0.2;
-  const tag=$("pitchtag");
-  tag.textContent=(pitch>=0?"+":"")+fmt(pitch,1)+"°"+(lvl?" LEVEL":"");
-  tag.classList.toggle("lvl",lvl);
-  $("xline").classList.toggle("lvl",lvl);
-}
-function startSensor(){
-  const go=()=>{window.addEventListener("deviceorientation",onOri);sensorOn=true;
-    $("capBtn").disabled=false;$("zeroBtn").disabled=false;$("senBtn").textContent="Sensor on";
-    $("senBtn").disabled=true;$("senMsg").textContent="";$("liveSub").textContent="reading…";};
-  try{
-    if(typeof DeviceOrientationEvent!=="undefined"&&typeof DeviceOrientationEvent.requestPermission==="function"){
-      DeviceOrientationEvent.requestPermission()
-        .then(r=>{r==="granted"?go():$("senMsg").textContent="Motion permission denied — allow it in Settings ▸ Safari.";})
-        .catch(()=>{$("senMsg").textContent="Couldn't request motion access — make sure you're in Safari over HTTPS.";});
-    }else if(typeof DeviceOrientationEvent!=="undefined"){go();}
-    else{$("senMsg").textContent="No orientation sensor available on this device/browser.";}
-  }catch(e){$("senMsg").textContent="Sensor error: "+e.message;}
-}
-$("senBtn").addEventListener("click",startSensor);
-$("zeroBtn").addEventListener("click",()=>{const m=median();if(m==null)return;
-  S.zero=m; $("senMsg").textContent=""; compute();
-  $("liveSub").textContent="zeroed — this surface now reads 0.0°";});
-$("capBtn").addEventListener("click",()=>{
-  const m=median(), L=num($("segLen").value);
-  if(m==null){$("senMsg").textContent="No reading yet — hold still a second.";return;}
-  if(L==null||L<=0){$("senMsg").textContent="Set a segment length first.";return;}
-  S.segs.push({a:+(m-S.zero).toFixed(2),L:L});
-  if(navigator.vibrate)navigator.vibrate(30);
-  compute();
-});
-$("undoBtn").addEventListener("click",()=>{S.segs.pop();compute();});
-$("clearSegBtn").addEventListener("click",()=>{if(S.segs.length&&!confirm("Clear the whole survey?"))return;S.segs=[];compute();});
-$("segLen").value=S.segLen;
-$("segLen").addEventListener("input",()=>{S.segLen=$("segLen").value;save();});
-
-/* ================= camera sight level ================= */
-async function startCam(){
-  if(!sensorOn) startSensor();
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    $("camMsg").textContent="Camera API not available in this browser — open in Safari over HTTPS.";return;}
-  try{
-    const stream=await navigator.mediaDevices.getUserMedia(
-      {video:{facingMode:{ideal:"environment"},width:{ideal:3840},height:{ideal:2160}},audio:false});
-    $("vid").srcObject=stream;
-    $("camBtn").textContent="Camera on";$("camBtn").disabled=true;$("camMsg").textContent="";
-  }catch(e){$("camMsg").textContent="Camera blocked ("+e.name+") — tap Allow when Safari asks, or check Settings ▸ Apps ▸ Safari ▸ Camera.";}
-}
-$("camBtn").addEventListener("click",startCam);
-$("zeroUBtn").addEventListener("click",()=>{
-  const m=median();
-  if(m==null){$("camMsg").textContent="Sensor not on yet — tap Enable camera + sensor first, then hold against the frame.";return;}
-  S.zeroU=+(m-90).toFixed(2); save();
-  $("camMsg").textContent="";
-  $("liveSub").textContent="";
-  if(navigator.vibrate)navigator.vibrate(30);
-});
-$("zoom").addEventListener("input",()=>{
-  const z=parseFloat($("zoom").value);
-  $("zoomv").textContent=z.toFixed(1);
-  $("vid").style.transform="scale("+z+")";
-});
-
-function phonePts(){ // build stations from captured segments; walk direction = toward ditch
-  const pts=[{d:0,z:0}]; let d=0,z=0;
-  S.segs.forEach(s=>{d+=s.L; z+=s.L*Math.sin(s.a*Math.PI/180); pts.push({d:d,z:z});});
-  return pts;
-}
-function renderSegs(){
-  const box=$("seglist"); if(!box)return;
-  if(!S.segs.length){box.innerHTML='<div class="row"><span>No segments captured yet</span><span>0 '+S.unit+'</span></div>';return;}
-  const pts=phonePts();
-  box.innerHTML=S.segs.map((s,i)=>'<div class="row"><span>#'+(i+1)+" · "+fmt(s.a,1)+"°</span><span>"+
-    fmt(pts[i+1].d,0)+" "+S.unit+" · elev "+fmt(pts[i+1].z,2)+"</span></div>").join("")+
-    '<div class="row"><span><b>Total</b></span><span><b>'+fmt(pts[pts.length-1].d,0)+" "+S.unit+
-    " · drop "+fmt(-pts[pts.length-1].z,2)+" "+S.unit+"</b></span></div>";
-}
-
-/* ================= manual station rows ================= */
+/* ---------- station rows ---------- */
 function renderStations(){
   const box=$("stations"); box.innerHTML="";
   S.stations.forEach((st,i)=>{
     const row=document.createElement("div"); row.className="strow";
     const d=document.createElement("input"); d.type="text"; d.inputMode="decimal";
-    d.placeholder="dist"; d.value=st.d; d.setAttribute("aria-label","Distance, station "+(i+1));
+    d.placeholder="dist"; d.value=st.d; d.setAttribute("aria-label","Distance, point "+(i+1));
     d.addEventListener("input",()=>{st.d=d.value; compute();});
     const r=document.createElement("input"); r.type="text"; r.inputMode="decimal";
-    r.placeholder=S.mode==="grade"?(i===0?"—":"fall %"):S.mode==="sight"?"stake":S.mode==="rod"?"reading":"elev"; r.value=st.r;
-    r.setAttribute("aria-label",(S.mode==="grade"?"Fall percent":S.mode==="sight"?"Stake reading":S.mode==="rod"?"Rod reading":"Elevation")+", station "+(i+1));
+    r.placeholder="reading"; r.value=st.r; r.setAttribute("aria-label","Ground reading, point "+(i+1));
     r.addEventListener("input",()=>{st.r=r.value; compute();});
     const x=document.createElement("button"); x.className="del"; x.textContent="×";
-    x.setAttribute("aria-label","Delete station "+(i+1));
+    x.setAttribute("aria-label","Delete point "+(i+1));
     x.addEventListener("click",()=>{S.stations.splice(i,1); renderStations(); compute();});
     row.append(d,r,x); box.appendChild(row);
   });
@@ -369,122 +199,69 @@ function renderStations(){
 $("addbtn").addEventListener("click",()=>{S.stations.push({d:"",r:""}); renderStations(); compute();
   const rows=$("stations").querySelectorAll(".strow"); if(rows.length) rows[rows.length-1].querySelector("input").focus();});
 
-/* ================= segmented controls ================= */
-function segWire(id,attr,cur,fn){
-  $(id).querySelectorAll("button").forEach(b=>{
-    b.classList.toggle("on",b.dataset[attr]===cur);
-    b.onclick=()=>{fn(b.dataset[attr]);
-      $(id).querySelectorAll("button").forEach(q=>q.classList.toggle("on",q===b)); compute();};
-  });
-}
-function wireSegs(){
-  segWire("unitseg","u",S.unit,v=>{S.unit=v; unitLabels();});
-  segWire("modeseg","m",S.mode,v=>{S.mode=v; modeUI();});
-  segWire("gradeseg","g",S.grade,v=>{S.grade=v;
-    $("slopebox").style.display=v==="slope"?"":"none";});
-}
-function unitLabels(){document.querySelectorAll(".uu").forEach(e=>e.textContent=S.unit);}
-function modeUI(){
-  $("phonebox").style.display=S.mode==="phone"?"":"none";
-  $("sightbox").style.display=S.mode==="sight"?"":"none";
-  $("manualbox").style.display=S.mode==="phone"?"none":"";
-  if(S.mode!=="phone"){
-    const lbl=S.mode==="grade"?"Fall % to here":S.mode==="sight"?"Stake reading":S.mode==="rod"?"Rod reading":"Elevation";
-    $("readhead").innerHTML=S.mode==="grade"?lbl:lbl+' (<span class="uu">'+S.unit+"</span>)";
-    $("modehint").textContent=S.mode==="grade"
-      ?"Each row: distance from the house (lay it out with a tape or Google Earth's measure tool), and the % the ground FALLS between the previous point and this one. Positive = drops toward the ditch, negative = rises. First row is the start — its fall % is ignored. Get grades from a string line + line level, a board + torpedo level, or the Board tilt mode."
-      :S.mode==="sight"
-      ?"At each point: distance from the house, and where the green level line crosses the stake (height above the ground at the stake)."
-      :S.mode==="rod"
-      ?"Rod reading at each station — bigger reading = lower ground. Everything is relative; no benchmark needed."
-      :"Enter surface elevations directly (absolute or relative — only differences matter).";
-    renderStations();
-  }
-  unitLabels();
-}
+/* ---------- units + inputs ---------- */
+$("unitseg").querySelectorAll("button").forEach(b=>{
+  b.classList.toggle("on",b.dataset.u===S.unit);
+  b.onclick=()=>{S.unit=b.dataset.u;
+    $("unitseg").querySelectorAll("button").forEach(q=>q.classList.toggle("on",q===b));
+    document.querySelectorAll(".uu").forEach(e=>e.textContent=S.unit); compute();};
+});
+document.querySelectorAll(".uu").forEach(e=>e.textContent=S.unit);
 
-/* ================= inputs ================= */
-[["endDepth","endDepth"],["slopePct","slopePct"],["startDepth","startDepth"],["checkDist","checkDist"],["phoneH","phoneH"]]
-.forEach(([id,key])=>{$(id).value=S[key]; $(id).addEventListener("input",()=>{S[key]=$(id).value; compute();});});
-
-$("resetbtn").addEventListener("click",()=>{
-  if(!confirm("Clear all survey data and settings?"))return;
-  S={unit:S.unit,mode:S.mode,grade:"start",endDepth:"",slopePct:"",startDepth:"",checkDist:"",
-     segLen:S.segLen,zero:S.zero,zeroU:S.zeroU,phoneH:S.phoneH,segs:[],
-     stations:[{d:"0",r:""},{d:"",r:""},{d:"",r:""}]};
-  $("phoneH").value=S.phoneH;
-  ["endDepth","slopePct","startDepth","checkDist"].forEach(id=>$(id).value="");
-  wireSegs(); modeUI(); compute();
+["sD","sR","oD","oR","checkDist"].forEach(k=>{
+  $(k).value=S[k]; $(k).addEventListener("input",()=>{S[k]=$(k).value; compute();});
 });
 
-/* ================= core math ================= */
+$("resetbtn").addEventListener("click",()=>{
+  if(!confirm("Clear all readings?"))return;
+  S={unit:S.unit,sD:"0",sR:"",oD:"",oR:"",checkDist:"",
+     stations:[{d:"0",r:""},{d:"",r:""},{d:"",r:""},{d:"",r:""}]};
+  ["sD","sR","oD","oR","checkDist"].forEach(k=>$(k).value=S[k]);
+  renderStations(); compute();
+});
+
+/* ---------- core math (all in reading space: bigger = lower) ---------- */
 function model(){
-  let pts;
-  if(S.mode==="phone"){
-    pts=phonePts();
-    if(pts.length<2) return {err:"Capture at least one segment with the phone level."};
-  }else{
-    pts=S.stations.map(st=>({d:num(st.d),r:num(st.r)}))
-      .filter(p=>p.d!=null&&(p.r!=null||S.mode==="grade")).sort((a,b)=>a.d-b.d);
-    if(pts.length<2) return {err:"Enter at least two stations (distance + reading)."};
-    if(pts[pts.length-1].d-pts[0].d<=0) return {err:"Stations need different distances."};
-    if(S.mode==="grade"){
-      // r = % the ground falls from the previous point to this one (positive = downhill toward ditch)
-      pts[0].z=0;
-      for(let i=1;i<pts.length;i++)
-        pts[i].z=pts[i-1].z-(pts[i].d-pts[i-1].d)*(pts[i].r||0)/100;
-    }else if(S.mode==="sight"){
-      const H=num(S.phoneH);
-      if(H==null) return {err:"Enter your phone height above ground (pole length / eye height)."};
-      pts.forEach(p=>p.z=p.r-H); // reading above phone height = ground higher than start
-    }else{
-      const ref=pts[0].r;
-      pts.forEach(p=>p.z = S.mode==="rod" ? (ref-p.r) : (p.r-ref));
-    }
-  }
-  const L0=pts[0].d, L1=pts[pts.length-1].d, span=L1-L0;
-  const zEnd=pts[pts.length-1].z, zStart=pts[0].z;
-  const dEnd=num(S.endDepth);
-  if(dEnd==null) return {err:"Enter the depth at the ditch end.", pts};
-  const invEnd=zEnd-dEnd;
-  let invStart, slope; // slope = fall per unit toward the ditch (positive = falling)
-  if(S.grade==="slope"){
-    const s=num(S.slopePct); if(s==null) return {err:"Enter a slope %.", pts};
-    slope=s/100; invStart=invEnd+slope*span;
-  }else{
-    const dS=num(S.startDepth); if(dS==null) return {err:"Enter the start depth at the house.", pts};
-    invStart=zStart-dS; slope=(invStart-invEnd)/span;
-  }
-  const inv=d=>invEnd+slope*(L1-d);
-  pts.forEach(p=>{p.inv=inv(p.d); p.cut=p.z-p.inv;});
-  const surfAt=d=>{
-    if(d<=L0)return pts[0].z; if(d>=L1)return pts[pts.length-1].z;
+  const pts=S.stations.map(st=>({d:num(st.d),r:num(st.r)}))
+    .filter(p=>p.d!=null&&p.r!=null).sort((a,b)=>a.d-b.d);
+  if(pts.length<2) return {err:"Enter at least two ground points (distance + reading)."};
+  if(pts[pts.length-1].d-pts[0].d<=0) return {err:"Ground points need different distances."};
+  const sD=num(S.sD), sR=num(S.sR), oD=num(S.oD), oR=num(S.oR);
+  if(sD==null||sR==null) return {err:"Enter the start point: distance + reading to the bottom of the foundation.", pts};
+  if(oD==null||oR==null) return {err:"Enter the outlet: distance + reading to the outlet.", pts};
+  if(oD-sD<=0) return {err:"The outlet must be further along than the start.", pts};
+  const grade=(oR-sR)/(oD-sD);            // positive = pipe falls toward the outlet
+  const inv=d=>sR+grade*(d-sD);           // target bottom reading at distance d
+  const srf=d=>{                          // interpolated ground reading at distance d
+    if(d<=pts[0].d)return pts[0].r;
+    if(d>=pts[pts.length-1].d)return pts[pts.length-1].r;
     for(let i=1;i<pts.length;i++) if(d<=pts[i].d){
-      const a=pts[i-1],b=pts[i],t=(d-a.d)/(b.d-a.d); return a.z+t*(b.z-a.z);}
-    return zEnd;};
-  return {pts,L0,L1,span,slope,invStart,invEnd,inv,surfAt,
-          startDepthActual:zStart-invStart,endDepthActual:dEnd};
+      const a=pts[i-1],b=pts[i],t=(d-a.d)/(b.d-a.d); return a.r+t*(b.r-a.r);}
+    return pts[pts.length-1].r;};
+  pts.forEach(p=>{p.inv=inv(p.d); p.cut=p.inv-p.r;}); // dig = bottom reading − ground reading
+  return {pts,sD,sR,oD,oR,grade,inv,srf,
+          startDig:sR-srf(sD), endDig:oR-srf(oD), drop:oR-sR, run:oD-sD};
 }
 
-/* ================= render ================= */
+/* ---------- render ---------- */
 let M=null;
-function compute(){ save(); renderSegs(); M=model(); renderGrade(); renderTable(); renderChart(); renderCheck(); }
+function compute(){ save(); M=model(); renderGrade(); renderTable(); renderChart(); renderCheck(); }
 
 function renderGrade(){
   const box=$("gradechips");
-  if(M.err||M.slope==null){box.innerHTML="";return;}
-  const s=M.slope*100, ratio=Math.abs(M.slope)>1e-9?Math.round(1/Math.abs(M.slope)):null;
-  const perUnit=S.unit==="ft"?fmt(Math.abs(M.slope)*12,2)+"″ per ft":fmt(Math.abs(M.slope)*100,1)+" cm per m";
+  if(M.err||M.grade==null){box.innerHTML="";return;}
+  const s=M.grade*100;
+  const perUnit=S.unit==="ft"?fmt(Math.abs(M.grade)*12,2)+"″ per ft":fmt(Math.abs(M.grade)*100,1)+" cm per m";
   let slopeChip;
-  if(s<0) slopeChip='<span class="chip bad">Slope <b>'+fmt(s,2)+'%</b> — runs UPHILL</span>';
-  else if(s<0.95) slopeChip='<span class="chip bad">Slope <b>'+fmt(s,2)+'%</b> — under 1% drain-tile min</span>';
-  else slopeChip='<span class="chip good">Slope <b>'+fmt(s,2)+'%</b> ✓</span>';
+  if(s<0) slopeChip='<span class="chip bad">Grade <b>'+fmt(s,2)+'%</b> — runs UPHILL</span>';
+  else if(s<0.95) slopeChip='<span class="chip bad">Grade <b>'+fmt(s,2)+'%</b> — under 1% drain minimum</span>';
+  else slopeChip='<span class="chip good">Grade <b>'+fmt(s,2)+'%</b> ✓</span>';
   box.innerHTML=slopeChip+
-    (ratio&&s>0?'<span class="chip">Grade <b>1:'+ratio+'</b></span>':"")+
     '<span class="chip">Fall <b>'+perUnit+'</b></span>'+
-    '<span class="chip">Start depth <b>'+fmt(M.startDepthActual)+' '+S.unit+'</b></span>'+
-    '<span class="chip">End depth <b>'+fmt(M.endDepthActual)+' '+S.unit+'</b></span>'+
-    '<span class="chip">Run <b>'+fmt(M.span,0)+' '+S.unit+'</b></span>';
+    '<span class="chip">Run <b>'+fmt(M.run,0)+' '+S.unit+'</b></span>'+
+    '<span class="chip">Total drop <b>'+(S.unit==="ft"?inches(M.drop):fmt(M.drop)+" "+S.unit)+'</b></span>'+
+    '<span class="chip">Depth at start <b>'+fmt(M.startDig)+' '+S.unit+'</b></span>'+
+    '<span class="chip">Depth at outlet <b>'+fmt(M.endDig)+' '+S.unit+'</b></span>';
 }
 
 function renderTable(){
@@ -494,27 +271,27 @@ function renderTable(){
   tb.innerHTML=M.pts.map(p=>{
     const fill=p.cut<-0.005; if(fill)anyFill=true; maxCut=Math.max(maxCut,p.cut);
     const digTxt=S.unit==="ft"?inches(p.cut):fmt(p.cut);
-    return "<tr><td>"+fmt(p.d,1)+"</td><td>"+fmt(p.z)+"</td><td>"+fmt(p.inv)+"</td>"+
-      (fill?'<td class="fill">fill '+fmt(-p.cut)+"</td>":'<td class="dig">'+digTxt+"</td>")+"</tr>";
+    return "<tr><td>"+fmt(p.d,1)+"</td><td>"+fmt(p.r)+"</td><td class=\"tgt\">"+fmt(p.inv)+"</td>"+
+      (fill?'<td class="fill">above grade</td>':'<td class="dig">'+digTxt+"</td>")+"</tr>";
   }).join("");
   let warns=[];
-  if(anyFill)warns.push("Some points sit below the grade line — the pipe would be above ground there. Lower the ditch-end depth or increase the start depth.");
-  if(M.slope<0)warns.push("The pipe runs uphill toward the ditch — water will not drain. Fix the depths or slope.");
+  if(M.grade<0)warns.push("The outlet reading is smaller than the start reading — the pipe would run uphill and never drain. Re-check the two end readings.");
+  if(anyFill)warns.push("At some points the pipe line sits above the ground — check those readings or the end depths.");
   wb.innerHTML=warns.map(w=>'<div class="warn">'+w+"</div>").join("");
   const deep=S.unit==="ft"?4:1.2;
   $("safenote").textContent=maxCut>deep
     ?"⚠ Deepest cut exceeds "+deep+" "+S.unit+" — check trench-safety rules (shoring / benching) before anyone enters the trench."
-    :"Dig column = depth below the ground you surveyed at that point. Re-check grade in the trench as you go.";
+    :"Laser must not move between any of these readings. Spot-check the bottom with the rod as you dig.";
 }
 
 function renderCheck(){
   const out=$("checkOut"), d=num(S.checkDist);
-  if(M.err||d==null){out.innerHTML="—<small>dig depth at that point</small>";return;}
-  if(d<M.L0||d>M.L1){out.innerHTML="—<small>outside the surveyed run ("+fmt(M.L0,0)+"–"+fmt(M.L1,0)+" "+S.unit+")</small>";return;}
-  const cut=M.surfAt(d)-M.inv(d);
-  const main=cut<0?"fill "+fmt(-cut)+" "+S.unit:(S.unit==="ft"?inches(cut):fmt(cut)+" "+S.unit);
-  out.innerHTML=main+"<small>dig depth "+fmt(d,0)+" "+S.unit+" from the house"+
-    (cut>=0&&S.unit==="ft"?" ("+fmt(cut,2)+" ft)":"")+"</small>";
+  if(M.err||d==null){out.innerHTML="—<small>dig depth · target bottom reading</small>";return;}
+  const lo=Math.min(M.pts[0].d,M.sD), hi=Math.max(M.pts[M.pts.length-1].d,M.oD);
+  if(d<lo||d>hi){out.innerHTML="—<small>outside the run ("+fmt(lo,0)+"–"+fmt(hi,0)+" "+S.unit+")</small>";return;}
+  const cut=M.inv(d)-M.srf(d);
+  const main=cut<0?"above grade":(S.unit==="ft"?inches(cut):fmt(cut)+" "+S.unit);
+  out.innerHTML=main+"<small>dig at "+fmt(d,0)+" "+S.unit+" · rod on bottom should read "+fmt(M.inv(d))+"</small>";
 }
 
 function renderChart(){
@@ -522,45 +299,52 @@ function renderChart(){
   svg.setAttribute("viewBox","0 0 "+W+" "+H); svg.innerHTML="";
   $("venote").textContent="";
   if(M.err) return;
-  const mL=44,mR=12,mT=16,mB=26, pw=W-mL-mR, ph=H-mT-mB;
-  const zs=[]; M.pts.forEach(p=>{zs.push(p.z,p.inv);});
+  const mL=46,mR=12,mT=16,mB=26, pw=W-mL-mR, ph=H-mT-mB;
+  const L0=Math.min(M.pts[0].d,M.sD), L1=Math.max(M.pts[M.pts.length-1].d,M.oD), span=L1-L0;
+  // elevation = -reading so downhill draws downward
+  const zs=[]; M.pts.forEach(p=>{zs.push(-p.r,-p.inv);}); zs.push(-M.sR,-M.oR);
   let zmin=Math.min.apply(null,zs), zmax=Math.max.apply(null,zs);
   if(zmax-zmin<0.5){const c=(zmax+zmin)/2; zmin=c-0.25; zmax=c+0.25;}
   const pad=(zmax-zmin)*0.12; zmin-=pad; zmax+=pad;
-  const X=d=>mL+(d-M.L0)/M.span*pw, Y=z=>mT+(zmax-z)/(zmax-zmin)*ph;
+  const X=d=>mL+(d-L0)/span*pw, Y=z=>mT+(zmax-z)/(zmax-zmin)*ph;
   const NS="http://www.w3.org/2000/svg";
   const el=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e;};
   for(let i=0;i<=4;i++){
     const z=zmin+(zmax-zmin)*i/4, y=Y(z);
     el("line",{x1:mL,x2:W-mR,y1:y,y2:y,stroke:"#E7E3DA","stroke-width":1});
     const t=el("text",{x:mL-6,y:y+4,"text-anchor":"end",fill:"#5C6660",
-      "font-size":11,"font-family":"ui-monospace,Menlo,monospace"}); t.textContent=fmt(z,1);
+      "font-size":11,"font-family":"ui-monospace,Menlo,monospace"}); t.textContent=fmt(-z,1);
   }
-  [[M.L0,"house"],[M.L1,"ditch"]].forEach(([d,name])=>{
-    const t=el("text",{x:X(d),y:H-8,"text-anchor":d===M.L0?"start":"end",fill:"#5C6660",
+  [[L0,"start"],[L1,"outlet"]].forEach(([d,name])=>{
+    const t=el("text",{x:X(d),y:H-8,"text-anchor":d===L0?"start":"end",fill:"#5C6660",
       "font-size":11,"font-family":"ui-monospace,Menlo,monospace"}); t.textContent=name+" "+fmt(d,0)+" "+S.unit;});
-  let poly=M.pts.map(p=>X(p.d)+","+Y(p.z)).join(" ")+" "+
-           M.pts.slice().reverse().map(p=>X(p.d)+","+Y(p.inv)).join(" ");
+  // soil fill between ground and pipe line
+  let poly=M.pts.map(p=>X(p.d)+","+Y(-p.r)).join(" ")+" "+
+           M.pts.slice().reverse().map(p=>X(p.d)+","+Y(-p.inv)).join(" ");
   el("polygon",{points:poly,fill:"#EDE3D3","fill-opacity":.8});
-  el("line",{x1:X(M.L0),y1:Y(M.inv(M.L0)),x2:X(M.L1),y2:Y(M.inv(M.L1)),
+  // pipe line between the two measured ends
+  el("line",{x1:X(M.sD),y1:Y(-M.sR),x2:X(M.oD),y2:Y(-M.oR),
     stroke:"#D9480F","stroke-width":2.5,"stroke-linecap":"round"});
-  el("polyline",{points:M.pts.map(p=>X(p.d)+","+Y(p.z)).join(" "),fill:"none",
+  // ground line + markers
+  el("polyline",{points:M.pts.map(p=>X(p.d)+","+Y(-p.r)).join(" "),fill:"none",
     stroke:"#2F7D4F","stroke-width":2.5,"stroke-linejoin":"round","stroke-linecap":"round"});
-  M.pts.forEach(p=>{el("circle",{cx:X(p.d),cy:Y(p.z),r:4.5,fill:"#2F7D4F",stroke:"#F7F6F2","stroke-width":2});});
-  el("circle",{cx:X(M.L1),cy:Y(M.invEnd),r:5,fill:"#D9480F",stroke:"#F7F6F2","stroke-width":2});
-  const ve=(M.span/pw)/((zmax-zmin)/ph);
-  $("venote").textContent="Profile is vertically exaggerated ×"+fmt(ve,1)+" so the grade is visible. Tap a point for its numbers.";
+  M.pts.forEach(p=>{el("circle",{cx:X(p.d),cy:Y(-p.r),r:4.5,fill:"#2F7D4F",stroke:"#F7F6F2","stroke-width":2});});
+  // the two pipe-end anchors
+  el("circle",{cx:X(M.sD),cy:Y(-M.sR),r:5,fill:"#D9480F",stroke:"#F7F6F2","stroke-width":2});
+  el("circle",{cx:X(M.oD),cy:Y(-M.oR),r:5,fill:"#D9480F",stroke:"#F7F6F2","stroke-width":2});
+  const ve=(span/pw)/((zmax-zmin)/ph);
+  $("venote").textContent="Y axis shows laser readings (bigger = lower). Vertically exaggerated ×"+fmt(ve,1)+". Tap a point for its numbers.";
   const tip=$("tip"), wrap=$("chartwrap");
   function show(ev){
     const rect=svg.getBoundingClientRect();
     const px=(ev.touches?ev.touches[0].clientX:ev.clientX)-rect.left;
-    const dAt=M.L0+(px-mL)/pw*M.span;
+    const dAt=L0+(px-mL)/pw*span;
     let best=M.pts[0]; M.pts.forEach(p=>{if(Math.abs(p.d-dAt)<Math.abs(best.d-dAt))best=p;});
     tip.style.display="block";
     tip.style.left=(X(best.d)/W*100)+"%";
-    tip.style.top=(Y(best.z)/H*100)+"%";
-    tip.innerHTML=(best.cut<0?"fill "+fmt(-best.cut)+" "+S.unit:"dig "+(S.unit==="ft"?inches(best.cut):fmt(best.cut)+" "+S.unit))+
-      "<small>at "+fmt(best.d,0)+" "+S.unit+" from house</small>";
+    tip.style.top=(Y(-best.r)/H*100)+"%";
+    tip.innerHTML=(best.cut<0?"above grade":"dig "+(S.unit==="ft"?inches(best.cut):fmt(best.cut)+" "+S.unit))+
+      "<small>at "+fmt(best.d,0)+" "+S.unit+" · bottom reads "+fmt(best.inv)+"</small>";
   }
   svg.onpointerdown=show; svg.onpointermove=e=>{if(e.pointerType==="mouse")show(e);};
   svg.onpointerleave=()=>{tip.style.display="none";};
@@ -568,8 +352,6 @@ function renderChart(){
 }
 
 window.addEventListener("resize",()=>renderChart());
-wireSegs(); unitLabels(); modeUI();
-$("slopebox").style.display=S.grade==="slope"?"":"none";
-compute();
+renderStations(); compute();
 })();
 </script>

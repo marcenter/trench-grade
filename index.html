@@ -145,11 +145,11 @@
   <p class="note" id="venote"></p>
   <div class="tblwrap">
     <table>
-      <thead><tr><th>Dist</th><th>Ground read</th><th>Bottom read</th><th>Dig ↓</th></tr></thead>
+      <thead><tr><th>Start →</th><th>← Outlet</th><th>Bottom read</th><th>Dig ↓</th></tr></thead>
       <tbody id="tbody"></tbody>
     </table>
   </div>
-  <p class="note"><b>Bottom read</b> is the laser reading when the rod sits on the finished trench bottom — dig until the rod reads that number. <b>Dig ↓</b> is the same thing as depth below the ground at that point.</p>
+  <p class="note" id="tabnote">Rows every 5 ft — <b>Start →</b> is taped from the house, <b>← Outlet</b> is the same spot taped back from the ditch. <b>Bottom read</b> is the laser reading with the rod on the finished trench bottom: dig until the rod reads that number. <b>Dig ↓</b> is depth below ground; between your measured ground points it's interpolated, so trust Bottom read over Dig where the ground is lumpy.</p>
   <div class="checkcard">
     <label>Check any point — distance from the start (<span class="uu">ft</span>)</label>
     <input type="text" inputmode="decimal" id="checkDist" placeholder="e.g. 35">
@@ -267,11 +267,18 @@ function renderGrade(){
 function renderTable(){
   const tb=$("tbody"), wb=$("warnbox");
   if(M.err){tb.innerHTML='<tr><td colspan="4" style="text-align:left;color:var(--ink2);font-family:var(--sans)">'+M.err+'</td></tr>'; wb.innerHTML=""; $("safenote").textContent=""; return;}
+  $("tabnote").firstChild.textContent="Rows every "+(S.unit==="ft"?"5 ft":"3 m")+" — ";
+  // rows at fixed increments along the pipe, ending exactly at the outlet
+  const step=S.unit==="ft"?5:3;
+  const rows=[];
+  for(let d=M.sD; d<M.oD-1e-9; d+=step) rows.push(d);
+  rows.push(M.oD);
   let anyFill=false, maxCut=0;
-  tb.innerHTML=M.pts.map(p=>{
-    const fill=p.cut<-0.005; if(fill)anyFill=true; maxCut=Math.max(maxCut,p.cut);
-    const digTxt=S.unit==="ft"?inches(p.cut):fmt(p.cut);
-    return "<tr><td>"+fmt(p.d,1)+"</td><td>"+fmt(p.r)+"</td><td class=\"tgt\">"+fmt(p.inv)+"</td>"+
+  tb.innerHTML=rows.map(d=>{
+    const invR=M.inv(d), cut=invR-M.srf(d);
+    const fill=cut<-0.005; if(fill)anyFill=true; maxCut=Math.max(maxCut,cut);
+    const digTxt=S.unit==="ft"?inches(cut):fmt(cut);
+    return "<tr><td>"+fmt(d,1)+"</td><td>"+fmt(M.oD-d,1)+"</td><td class=\"tgt\">"+fmt(invR)+"</td>"+
       (fill?'<td class="fill">above grade</td>':'<td class="dig">'+digTxt+"</td>")+"</tr>";
   }).join("");
   let warns=[];

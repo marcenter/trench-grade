@@ -50,6 +50,17 @@
   .seglist .row span:first-child{color:var(--ink2)}
   .msg{font-size:13px;color:var(--danger);font-weight:600;margin:6px 0}
 
+  /* camera sight level */
+  .cam{position:relative;background:#000;border-radius:4px;overflow:hidden;height:46vh;max-height:420px;margin:0 0 10px}
+  .cam video{width:100%;height:100%;object-fit:cover;transform-origin:50% 50%}
+  .xline{position:absolute;left:0;right:0;top:50%;height:0;border-top:2px solid #FF3B30;
+         box-shadow:0 1px 3px rgba(0,0,0,.6);pointer-events:none;z-index:2}
+  .xline.lvl{border-top-color:#30D158}
+  .pitchtag{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);color:#FF9F8A;border-radius:4px;
+            padding:5px 10px;font:700 17px var(--mono);font-variant-numeric:tabular-nums;z-index:3;pointer-events:none}
+  .pitchtag.lvl{color:#30D158}
+  input[type=range]{width:100%;min-height:40px;accent-color:var(--orange)}
+
   .strow{display:grid;grid-template-columns:1fr 1fr 44px;gap:8px;margin:0 0 8px;align-items:center}
   .sthead{display:grid;grid-template-columns:1fr 1fr 44px;gap:8px;margin:0 0 4px}
   .sthead div{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
@@ -116,9 +127,31 @@
     <button data-u="m">metres</button>
   </div>
   <div class="seg" id="modeseg">
-    <button data-m="phone" class="on">iPhone level</button>
-    <button data-m="rod">Rod readings</button>
-    <button data-m="elev">Elevations</button>
+    <button data-m="sight" class="on">Camera sight</button>
+    <button data-m="phone">Board tilt</button>
+    <button data-m="rod">Rod</button>
+    <button data-m="elev">Elev</button>
+  </div>
+
+  <!-- camera sight level -->
+  <div id="sightbox" style="display:none">
+    <p class="hint"><b>How it works:</b> plant a stake with bold markings (or clip a tape measure to it) at the <b>start</b> of the run, markings measured up from the ground. Walk the trench line holding the phone at the <b>same height every time</b> — resting it on top of a pole is best, eye height works too. At each point, hold the phone upright like taking a photo, tilt until the line turns <b style="color:#2F7D4F">green (level)</b>, and read where the line crosses the stake. Enter distance + reading below.</p>
+    <label>Phone height above ground when sighting (<span class="uu">ft</span>)</label>
+    <input type="text" inputmode="decimal" id="phoneH" placeholder="e.g. 5.0 — pole length or your eye height">
+    <div style="height:10px"></div>
+    <div class="cam" id="cambox">
+      <video id="vid" playsinline muted autoplay></video>
+      <div class="xline" id="xline"></div>
+      <div class="pitchtag" id="pitchtag">— °</div>
+    </div>
+    <label>Zoom ×<span id="zoomv">1.0</span></label>
+    <input type="range" id="zoom" min="1" max="8" step="0.1" value="1" aria-label="Camera zoom">
+    <div class="btnrow">
+      <button class="btn wide primary" id="camBtn">Enable camera + sensor</button>
+      <button class="btn wide" id="zeroUBtn">Calibrate: zero against a door frame</button>
+    </div>
+    <div class="msg" id="camMsg"></div>
+    <p class="note"><b>Before you start:</b> hold the phone flat against a door frame or window jamb (anything you trust to be plumb) and tap <i>Calibrate</i> — that zeroes the tilt sensor for sighting. Sanity check: standing right next to the stake, the green line should read exactly your phone height.</p>
   </div>
 
   <!-- iPhone level survey -->
@@ -208,8 +241,8 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const KEY="trenchgrade_v2";
-let S={unit:"ft",mode:"phone",grade:"start",endDepth:"",slopePct:"",startDepth:"",checkDist:"",
-       segLen:"4",zero:0,segs:[],stations:[{d:"0",r:""},{d:"",r:""},{d:"",r:""}]};
+let S={unit:"ft",mode:"sight",grade:"start",endDepth:"",slopePct:"",startDepth:"",checkDist:"",
+       segLen:"4",zero:0,zeroU:0,phoneH:"",segs:[],stations:[{d:"0",r:""},{d:"",r:""},{d:"",r:""}]};
 try{const raw=localStorage.getItem(KEY); if(raw){const p=JSON.parse(raw); if(p&&p.stations) S=Object.assign(S,p);}}catch(e){}
 
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
@@ -228,12 +261,19 @@ function onOri(e){
   if(e.beta==null)return;
   buf.push(e.beta); if(buf.length>40)buf.shift();
   const m=median();
-  if(m!=null){
-    const a=m-S.zero;
-    $("liveDeg").textContent=fmt(a,1)+" °";
-    $("liveSub").textContent="grade "+fmt(Math.tan(a*Math.PI/180)*100,1)+" %  ·  "+
-      (a>=0?"uphill ahead":"downhill ahead");
-  }
+  if(m==null)return;
+  // board mode readout (phone flat)
+  const a=m-S.zero;
+  $("liveDeg").textContent=fmt(a,1)+" °";
+  $("liveSub").textContent="grade "+fmt(Math.tan(a*Math.PI/180)*100,1)+" %  ·  "+
+    (a>=0?"uphill ahead":"downhill ahead");
+  // sight mode readout (phone upright, camera forward): level when beta = 90
+  const pitch=m-90-(S.zeroU||0);
+  const lvl=Math.abs(pitch)<=0.2;
+  const tag=$("pitchtag");
+  tag.textContent=(pitch>=0?"+":"")+fmt(pitch,1)+"°"+(lvl?" LEVEL":"");
+  tag.classList.toggle("lvl",lvl);
+  $("xline").classList.toggle("lvl",lvl);
 }
 function startSensor(){
   const go=()=>{window.addEventListener("deviceorientation",onOri);sensorOn=true;
@@ -265,6 +305,33 @@ $("clearSegBtn").addEventListener("click",()=>{if(S.segs.length&&!confirm("Clear
 $("segLen").value=S.segLen;
 $("segLen").addEventListener("input",()=>{S.segLen=$("segLen").value;save();});
 
+/* ================= camera sight level ================= */
+async function startCam(){
+  if(!sensorOn) startSensor();
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    $("camMsg").textContent="Camera API not available in this browser — open in Safari over HTTPS.";return;}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia(
+      {video:{facingMode:{ideal:"environment"},width:{ideal:3840},height:{ideal:2160}},audio:false});
+    $("vid").srcObject=stream;
+    $("camBtn").textContent="Camera on";$("camBtn").disabled=true;$("camMsg").textContent="";
+  }catch(e){$("camMsg").textContent="Camera blocked ("+e.name+") — tap Allow when Safari asks, or check Settings ▸ Apps ▸ Safari ▸ Camera.";}
+}
+$("camBtn").addEventListener("click",startCam);
+$("zeroUBtn").addEventListener("click",()=>{
+  const m=median();
+  if(m==null){$("camMsg").textContent="Sensor not on yet — tap Enable camera + sensor first, then hold against the frame.";return;}
+  S.zeroU=+(m-90).toFixed(2); save();
+  $("camMsg").textContent="";
+  $("liveSub").textContent="";
+  if(navigator.vibrate)navigator.vibrate(30);
+});
+$("zoom").addEventListener("input",()=>{
+  const z=parseFloat($("zoom").value);
+  $("zoomv").textContent=z.toFixed(1);
+  $("vid").style.transform="scale("+z+")";
+});
+
 function phonePts(){ // build stations from captured segments; walk direction = toward ditch
   const pts=[{d:0,z:0}]; let d=0,z=0;
   S.segs.forEach(s=>{d+=s.L; z+=s.L*Math.sin(s.a*Math.PI/180); pts.push({d:d,z:z});});
@@ -289,8 +356,8 @@ function renderStations(){
     d.placeholder="dist"; d.value=st.d; d.setAttribute("aria-label","Distance, station "+(i+1));
     d.addEventListener("input",()=>{st.d=d.value; compute();});
     const r=document.createElement("input"); r.type="text"; r.inputMode="decimal";
-    r.placeholder=S.mode==="rod"?"reading":"elev"; r.value=st.r;
-    r.setAttribute("aria-label",(S.mode==="rod"?"Rod reading":"Elevation")+", station "+(i+1));
+    r.placeholder=S.mode==="sight"?"stake":S.mode==="rod"?"reading":"elev"; r.value=st.r;
+    r.setAttribute("aria-label",(S.mode==="sight"?"Stake reading":S.mode==="rod"?"Rod reading":"Elevation")+", station "+(i+1));
     r.addEventListener("input",()=>{st.r=r.value; compute();});
     const x=document.createElement("button"); x.className="del"; x.textContent="×";
     x.setAttribute("aria-label","Delete station "+(i+1));
@@ -318,10 +385,14 @@ function wireSegs(){
 function unitLabels(){document.querySelectorAll(".uu").forEach(e=>e.textContent=S.unit);}
 function modeUI(){
   $("phonebox").style.display=S.mode==="phone"?"":"none";
+  $("sightbox").style.display=S.mode==="sight"?"":"none";
   $("manualbox").style.display=S.mode==="phone"?"none":"";
   if(S.mode!=="phone"){
-    $("readhead").innerHTML=(S.mode==="rod"?"Rod reading":"Elevation")+' (<span class="uu">'+S.unit+"</span>)";
-    $("modehint").textContent=S.mode==="rod"
+    const lbl=S.mode==="sight"?"Stake reading":S.mode==="rod"?"Rod reading":"Elevation";
+    $("readhead").innerHTML=lbl+' (<span class="uu">'+S.unit+"</span>)";
+    $("modehint").textContent=S.mode==="sight"
+      ?"At each point: distance from the house, and where the green level line crosses the stake (height above the ground at the stake)."
+      :S.mode==="rod"
       ?"Rod reading at each station — bigger reading = lower ground. Everything is relative; no benchmark needed."
       :"Enter surface elevations directly (absolute or relative — only differences matter).";
     renderStations();
@@ -330,13 +401,15 @@ function modeUI(){
 }
 
 /* ================= inputs ================= */
-[["endDepth","endDepth"],["slopePct","slopePct"],["startDepth","startDepth"],["checkDist","checkDist"]]
+[["endDepth","endDepth"],["slopePct","slopePct"],["startDepth","startDepth"],["checkDist","checkDist"],["phoneH","phoneH"]]
 .forEach(([id,key])=>{$(id).value=S[key]; $(id).addEventListener("input",()=>{S[key]=$(id).value; compute();});});
 
 $("resetbtn").addEventListener("click",()=>{
   if(!confirm("Clear all survey data and settings?"))return;
   S={unit:S.unit,mode:S.mode,grade:"start",endDepth:"",slopePct:"",startDepth:"",checkDist:"",
-     segLen:S.segLen,zero:0,segs:[],stations:[{d:"0",r:""},{d:"",r:""},{d:"",r:""}]};
+     segLen:S.segLen,zero:S.zero,zeroU:S.zeroU,phoneH:S.phoneH,segs:[],
+     stations:[{d:"0",r:""},{d:"",r:""},{d:"",r:""}]};
+  $("phoneH").value=S.phoneH;
   ["endDepth","slopePct","startDepth","checkDist"].forEach(id=>$(id).value="");
   wireSegs(); modeUI(); compute();
 });
@@ -352,8 +425,14 @@ function model(){
       .filter(p=>p.d!=null&&p.r!=null).sort((a,b)=>a.d-b.d);
     if(pts.length<2) return {err:"Enter at least two stations (distance + reading)."};
     if(pts[pts.length-1].d-pts[0].d<=0) return {err:"Stations need different distances."};
-    const ref=pts[0].r;
-    pts.forEach(p=>p.z = S.mode==="rod" ? (ref-p.r) : (p.r-ref));
+    if(S.mode==="sight"){
+      const H=num(S.phoneH);
+      if(H==null) return {err:"Enter your phone height above ground (pole length / eye height)."};
+      pts.forEach(p=>p.z=p.r-H); // reading above phone height = ground higher than start
+    }else{
+      const ref=pts[0].r;
+      pts.forEach(p=>p.z = S.mode==="rod" ? (ref-p.r) : (p.r-ref));
+    }
   }
   const L0=pts[0].d, L1=pts[pts.length-1].d, span=L1-L0;
   const zEnd=pts[pts.length-1].z, zStart=pts[0].z;

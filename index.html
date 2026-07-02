@@ -126,11 +126,12 @@
     <button data-u="ft" class="on">feet</button>
     <button data-u="m">metres</button>
   </div>
-  <div class="seg" id="modeseg">
-    <button data-m="sight" class="on">Camera sight</button>
-    <button data-m="phone">Board tilt</button>
-    <button data-m="rod">Rod</button>
-    <button data-m="elev">Elev</button>
+  <div class="seg" id="modeseg" style="flex-wrap:wrap">
+    <button data-m="grade" style="min-width:33%">Dist + fall %</button>
+    <button data-m="sight" class="on" style="min-width:33%">Camera sight</button>
+    <button data-m="phone" style="min-width:33%">Board tilt</button>
+    <button data-m="rod" style="min-width:50%">Rod readings</button>
+    <button data-m="elev" style="min-width:50%">Elevations</button>
   </div>
 
   <!-- camera sight level -->
@@ -356,8 +357,8 @@ function renderStations(){
     d.placeholder="dist"; d.value=st.d; d.setAttribute("aria-label","Distance, station "+(i+1));
     d.addEventListener("input",()=>{st.d=d.value; compute();});
     const r=document.createElement("input"); r.type="text"; r.inputMode="decimal";
-    r.placeholder=S.mode==="sight"?"stake":S.mode==="rod"?"reading":"elev"; r.value=st.r;
-    r.setAttribute("aria-label",(S.mode==="sight"?"Stake reading":S.mode==="rod"?"Rod reading":"Elevation")+", station "+(i+1));
+    r.placeholder=S.mode==="grade"?(i===0?"—":"fall %"):S.mode==="sight"?"stake":S.mode==="rod"?"reading":"elev"; r.value=st.r;
+    r.setAttribute("aria-label",(S.mode==="grade"?"Fall percent":S.mode==="sight"?"Stake reading":S.mode==="rod"?"Rod reading":"Elevation")+", station "+(i+1));
     r.addEventListener("input",()=>{st.r=r.value; compute();});
     const x=document.createElement("button"); x.className="del"; x.textContent="×";
     x.setAttribute("aria-label","Delete station "+(i+1));
@@ -388,9 +389,11 @@ function modeUI(){
   $("sightbox").style.display=S.mode==="sight"?"":"none";
   $("manualbox").style.display=S.mode==="phone"?"none":"";
   if(S.mode!=="phone"){
-    const lbl=S.mode==="sight"?"Stake reading":S.mode==="rod"?"Rod reading":"Elevation";
-    $("readhead").innerHTML=lbl+' (<span class="uu">'+S.unit+"</span>)";
-    $("modehint").textContent=S.mode==="sight"
+    const lbl=S.mode==="grade"?"Fall % to here":S.mode==="sight"?"Stake reading":S.mode==="rod"?"Rod reading":"Elevation";
+    $("readhead").innerHTML=S.mode==="grade"?lbl:lbl+' (<span class="uu">'+S.unit+"</span>)";
+    $("modehint").textContent=S.mode==="grade"
+      ?"Each row: distance from the house (lay it out with a tape or Google Earth's measure tool), and the % the ground FALLS between the previous point and this one. Positive = drops toward the ditch, negative = rises. First row is the start — its fall % is ignored. Get grades from a string line + line level, a board + torpedo level, or the Board tilt mode."
+      :S.mode==="sight"
       ?"At each point: distance from the house, and where the green level line crosses the stake (height above the ground at the stake)."
       :S.mode==="rod"
       ?"Rod reading at each station — bigger reading = lower ground. Everything is relative; no benchmark needed."
@@ -422,10 +425,15 @@ function model(){
     if(pts.length<2) return {err:"Capture at least one segment with the phone level."};
   }else{
     pts=S.stations.map(st=>({d:num(st.d),r:num(st.r)}))
-      .filter(p=>p.d!=null&&p.r!=null).sort((a,b)=>a.d-b.d);
+      .filter(p=>p.d!=null&&(p.r!=null||S.mode==="grade")).sort((a,b)=>a.d-b.d);
     if(pts.length<2) return {err:"Enter at least two stations (distance + reading)."};
     if(pts[pts.length-1].d-pts[0].d<=0) return {err:"Stations need different distances."};
-    if(S.mode==="sight"){
+    if(S.mode==="grade"){
+      // r = % the ground falls from the previous point to this one (positive = downhill toward ditch)
+      pts[0].z=0;
+      for(let i=1;i<pts.length;i++)
+        pts[i].z=pts[i-1].z-(pts[i].d-pts[i-1].d)*(pts[i].r||0)/100;
+    }else if(S.mode==="sight"){
       const H=num(S.phoneH);
       if(H==null) return {err:"Enter your phone height above ground (pole length / eye height)."};
       pts.forEach(p=>p.z=p.r-H); // reading above phone height = ground higher than start
